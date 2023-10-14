@@ -21,10 +21,13 @@ from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 
 
-def get_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_cifar10")
+def get_cifar10_data(flatten=False):
+  data_path = os.path.join(BASE_PATH, "_00_data", "i_cifar10")
+
+  print("DATA PATH: {0}".format(data_path))
 
   cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=transforms.ToTensor())
+
   cifar10_train, cifar10_validation = random_split(cifar10_train, [45_000, 5_000])
 
   print("Num Train Samples: ", len(cifar10_train))
@@ -86,12 +89,14 @@ def main(args):
     'epochs': args.epochs,
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
-    'learning_rate': args.learning_rate
+    'learning_rate': args.learning_rate,
+    'early_stop_patience': args.early_stop_patience
   }
 
+  project_name = "fcn_cifar10"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="fcn_cifar10",
+    project=project_name,
     notes="cifar10 experiment with fcn",
     tags=["fcc", "cifar10"],
     name=run_time_str,
@@ -103,7 +108,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, cifar10_transforms = get_data(flatten=True)
+  train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=True)
   model = get_model()
   model.to(device)
   wandb.watch(model)
@@ -111,7 +116,7 @@ def main(args):
   optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

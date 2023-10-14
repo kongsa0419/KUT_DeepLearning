@@ -21,8 +21,8 @@ from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 
 
-def get_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "h_mnist")
+def get_mnist_data(flatten=False):
+  data_path = os.path.join(BASE_PATH, "_00_data", "h_mnist")
 
   mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transforms.ToTensor())
   mnist_train, mnist_validation = random_split(mnist_train, [55_000, 5_000])
@@ -86,12 +86,14 @@ def main(args):
     'epochs': args.epochs,
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
-    'learning_rate': args.learning_rate
+    'learning_rate': args.learning_rate,
+    'early_stop_patience': args.early_stop_patience
   }
 
+  project_name = "fcn_mnist"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="fcn_mnist",
+    project=project_name,
     notes="mnist experiment with fcn",
     tags=["fcn", "mnist"],
     name=run_time_str,
@@ -103,7 +105,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, mnist_transforms = get_data(flatten=True)
+  train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(flatten=True)
   model = get_model()
   model.to(device)
   wandb.watch(model)
@@ -111,7 +113,7 @@ def main(args):
   optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    "mnist", model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
+    project_name, model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

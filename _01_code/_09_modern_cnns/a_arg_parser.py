@@ -5,7 +5,7 @@ def get_parser():
   parser = argparse.ArgumentParser()
 
   parser.add_argument(
-    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="True or False"
+    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="Wandb: True or False"
   )
 
   parser.add_argument(
@@ -13,7 +13,7 @@ def get_parser():
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=10_000, help="Number of training epochs (int, default:10_000)"
+    "-e", "--epochs", type=int, default=500, help="Number of training epochs (int, default:10_000)"
   )
 
   parser.add_argument(

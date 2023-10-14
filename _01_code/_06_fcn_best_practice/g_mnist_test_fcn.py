@@ -20,8 +20,8 @@ from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_model
 from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 
 
-def get_test_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "h_mnist")
+def get_mnist_test_data(flatten=False):
+  data_path = os.path.join(BASE_PATH, "_00_data", "h_mnist")
 
   mnist_test_images = datasets.MNIST(data_path, train=False, download=True)
 
@@ -42,11 +42,13 @@ def get_test_data(flatten=False):
 
 
 def main():
-  mnist_test_images, test_data_loader, mnist_transforms = get_test_data(flatten=True)
+  mnist_test_images, test_data_loader, mnist_transforms = get_mnist_test_data(flatten=True)
 
   test_model = get_model()
+
+  project_name = "fcn_mnist"
   classification_tester = ClassificationTester(
-    "mnist", test_model, test_data_loader, mnist_transforms, CHECKPOINT_FILE_PATH
+    project_name, test_model, test_data_loader, mnist_transforms, CHECKPOINT_FILE_PATH
   )
   classification_tester.test()
 
