@@ -7,10 +7,13 @@ class CaliforniaHousingDataset(Dataset):
   def __init__(self):
     from sklearn.datasets import fetch_california_housing
     housing = fetch_california_housing()
-    data_mean = np.mean(housing.data, axis=0)
-    data_var = np.var(housing.data, axis=0)
+    data_mean = np.mean(housing.data, axis=0) # 모든 feature에 대한 mean (중앙값)
+    # print(data_mean)
+    data_var = np.var(housing.data, axis=0) # 모든 feature에 대한 var(분산)
+    # print(data_var)
+    # print("*"*10); print(housing.target); print("*"*10);
     self.data = torch.tensor((housing.data - data_mean) / np.sqrt(data_var), dtype=torch.float32)
-    self.target = torch.tensor(housing.target, dtype=torch.float32).unsqueeze(dim=-1)
+    self.target = torch.tensor(housing.target, dtype=torch.float32).unsqueeze(dim=-1) # 마지막에 축에 차원을 하나 추가 [8] => [(8,1)]
 
   def __len__(self):
     return len(self.data)
